@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Whack-a-Rat · Street Art Games</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;font-family:var(--pd-font-body,'Quicksand',sans-serif);color:#0C5A48;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
+a{color:#C2453C;}a:hover{color:#0C5A48;}
+body{background:#FFFBF2;min-height:100vh;display:grid;place-items:center;padding:14px;}
+.frame{position:relative;width:min(100%,760px,max(300px,calc(100vh - 230px)));border-radius:44px;padding:26px;border:5px solid #0C5A48;box-shadow:0 12px 0 #0C5A48;
+background-color:#E9524A;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cpath d='M0 1H80M0 21H80M1 0V20M41 20V40' stroke='%23ffffff' stroke-width='3' fill='none'/%3E%3C/svg%3E");}
+.inner{position:relative;container-type:inline-size;background:#FFFBF2;border:5px solid #0C5A48;border-radius:28px;padding:18px 20px 24px;overflow:hidden;}
+.top{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.6cqw,10px);}
+.top h1{white-space:nowrap;font-family:var(--pd-font-display,'Bowlby One SC',sans-serif);font-weight:400;font-size:clamp(16px,6.4cqw,40px);margin:0;line-height:1;color:#E9524A;text-shadow:2px 2px 0 #0C5A48;}
+.stats{display:flex;gap:6px;flex:none;}
+.pill{font-family:var(--pd-font-display,'Bowlby One SC',sans-serif);font-size:clamp(12px,3.8cqw,26px);line-height:1;background:#fff;border:3px solid #0C5A48;border-radius:999px;padding:clamp(5px,1.4cqw,9px) clamp(8px,2.4cqw,16px);box-shadow:0 4px 0 #0C5A48;white-space:nowrap;}
+.pill.score{background:#FFD86B;}
+.pill.time.low{background:#FFB3C6;animation:tick 1s infinite;}
+@keyframes tick{50%{transform:scale(1.08);}}
+.bar{height:14px;border:4px solid #0C5A48;border-radius:999px;background:#fff;margin:14px 0 6px;overflow:hidden;}
+.bar i{display:block;height:100%;width:100%;background:repeating-linear-gradient(90deg,#84E6A4 0 18px,#FFD86B 18px 36px,#FFB8C6 36px 54px,#8FD3F4 54px 72px,#C9B6FF 72px 90px);transition:width .25s linear;}
+.combo{color:#1E78B4;height:clamp(20px,5cqw,30px);text-align:center;font-family:var(--pd-font-display,'Bowlby One SC',sans-serif);font-size:clamp(14px,4cqw,22px);color:#1C6FB0;}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,3vw,26px);margin-top:4px;}
+.hole{position:relative;aspect-ratio:1/1;cursor:pointer;touch-action:manipulation;}
+.pit{position:absolute;left:4%;right:4%;bottom:4%;height:34%;border-radius:50%;background:repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 6px,transparent 6px 14px),radial-gradient(ellipse at 50% 35%,#4A6A64 0%,#1F3B36 70%);border:4px solid #0C5A48;box-shadow:0 6px 0 #9FB3AE;}
+.mask{position:absolute;left:0;right:0;top:0;bottom:21%;overflow:hidden;border-radius:0 0 50% 50% / 0 0 18% 18%;}
+.dot{position:absolute;left:16%;width:68%;aspect-ratio:.86/1;bottom:-110%;border-radius:46% 46% 50% 50%/34% 34% 66% 66%;border:5px solid #0C5A48;transition:bottom .16s cubic-bezier(.3,1.6,.6,1);background:var(--c);box-shadow:inset -10px -12px 0 rgba(0,0,0,.12),inset 8px 10px 0 rgba(255,255,255,.35);}
+.dot.up{bottom:2%;}
+.dot{border-radius:50% 50% 46% 46%/56% 56% 44% 44%;}
+.cap{position:absolute;left:-14%;right:-14%;top:-14%;height:42%;z-index:0;}
+.cap::before,.cap::after{content:"";position:absolute;top:0;width:36%;aspect-ratio:1/1;border-radius:50%;background:var(--c);border:5px solid #0C5A48;box-shadow:inset 0 0 0 9px #FFB8C6;}
+.cap::before{left:0;}.cap::after{right:0;}
+.dot.gold .cap::before,.dot.gold .cap::after{background:#FFD86B;}.dot.spiky .cap{display:none;}
+.nose{position:absolute;left:43%;top:58%;width:14%;height:10%;background:#E9524A;border:3px solid #0C5A48;border-radius:50%;z-index:2;}
+.whisk{position:absolute;top:66%;width:22%;height:12%;border-top:3px solid #0C5A48;border-bottom:3px solid #0C5A48;}
+.whisk.l{left:4%;transform:rotate(8deg);}.whisk.r{right:4%;transform:rotate(-8deg);}
+.dot.spiky .nose,.dot.spiky .whisk{display:none;}
+.dot.hit{transition:transform .22s,opacity .22s;transform:scale(1.35,.45) translateY(40%);opacity:0;}
+.face{position:absolute;inset:0;}
+.eye{position:absolute;top:44%;width:15%;height:19%;background:#0C5A48;border-radius:50%;}
+.eye::after{content:"";position:absolute;top:18%;left:22%;width:38%;height:34%;background:#fff;border-radius:50%;}
+.eye.l{left:28%;}.eye.r{right:28%;}
+.mouth{position:absolute;left:38%;width:24%;top:66%;height:14%;border:5px solid #0C5A48;border-top:none;border-radius:0 0 999px 999px;}
+.cheek{position:absolute;top:62%;width:13%;height:8%;background:#FF8FA8;border-radius:50%;opacity:.7;}
+.cheek.l{left:14%;}.cheek.r{right:14%;}
+.dot.gold{background:radial-gradient(circle at 35% 45%,#FFF6BF 0%,#FFD86B 60%,#F2C24E 100%);}
+.dot.gold::before{z-index:2;content:"+5";position:absolute;top:-6%;right:-8%;font-family:var(--pd-font-display,'Bowlby One SC',sans-serif);font-size:clamp(14px,3vw,22px);background:#fff;border:3px solid #0C5A48;border-radius:999px;padding:2px 8px;}
+.dot.spiky{border:none;background:none;box-shadow:none;}
+.dot.spiky{aspect-ratio:1/1;}.dot.spiky .spikes{position:absolute;left:2%;right:2%;top:4%;bottom:22%;background:#7C8C88;border-radius:50% 50% 44% 44%;}.dot.spiky .spikes::before,.dot.spiky .spikes::after{content:"";position:absolute;top:70%;width:14%;height:48%;background:#7C8C88;border-radius:0 0 999px 999px;}.dot.spiky .spikes::before{left:18%;}.dot.spiky .spikes::after{right:24%;height:36%;}
+.dot.spiky .eye{background:#fff;top:38%;}.dot.spiky .eye::after{background:#0C5A48;left:30%;top:30%;}
+.dot.spiky .mouth{border-color:#fff;border-bottom:none;border-top:5px solid #fff;border-radius:999px 999px 0 0;top:62%;height:10%;}
+.dot.spiky .cheek{display:none;}
+.dot.spiky .brow{position:absolute;top:28%;width:18%;height:5px;background:#fff;border-radius:4px;}
+.dot.spiky .brow.l{left:26%;transform:rotate(18deg);}.dot.spiky .brow.r{right:26%;transform:rotate(-18deg);}
+.float{position:absolute;left:50%;top:10%;transform:translateX(-50%);font-family:var(--pd-font-display,'Bowlby One SC',sans-serif);font-size:clamp(20px,4vw,32px);color:#fff;-webkit-text-stroke:2px #0C5A48;pointer-events:none;animation:up .7s forwards;z-index:3;}
+@keyframes up{to{transform:translate(-50%,-80%);opacity:0;}}
+.splat{position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;pointer-events:none;z-index:2;animation:splat .5s forwards;}
+@keyframes splat{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0;}}
+.hint{text-align:center;font-weight:700;font-size:clamp(12px,3.4cqw,19px);margin:clamp(8px,2cqw,16px) 0 0;color:#2F6F5E;}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;z-index:5;background:rgba(255,251,242,.94);padding:12px;border-radius:24px;overflow:auto;}
+.overlay[hidden]{display:none;}
+.card{text-align:center;}
+.card h2{font-family:var(--pd-font-display,'Bowlby One SC',sans-serif);font-weight:400;font-size:clamp(26px,9cqw,58px);margin:0 0 10px;color:#3BAA5C;text-shadow:3px 3px 0 #0C5A48;line-height:1.05;}
+.card p{font-size:clamp(15px,4cqw,23px);font-weight:700;margin:0 0 clamp(10px,3cqw,22px);line-height:1.35;}
+.card .big{font-family:var(--pd-font-display,'Bowlby One SC',sans-serif);font-size:clamp(22px,6.5cqw,40px);margin-bottom:6px;}
+.legend{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font-weight:700;font-size:clamp(14px,3.4cqw,18px);margin-bottom:clamp(10px,3cqw,22px);}
+.legend span{display:flex;align-items:center;gap:6px;}
+.legend b{display:inline-block;width:22px;height:22px;border-radius:50%;border:3px solid #0C5A48;}
+.btn{font-family:var(--pd-font-display,'Bowlby One SC',sans-serif);font-size:clamp(18px,5cqw,32px);text-transform:uppercase;color:#0C5A48;background:#84E6A4;border:5px solid #0C5A48;border-radius:999px;padding:clamp(8px,2.4cqw,14px) clamp(24px,7cqw,42px);box-shadow:0 8px 0 #0C5A48;cursor:pointer;transition:transform .1s,box-shadow .1s;}
+.btn:hover{transform:translateY(-2px);}
+.btn:active{transform:translateY(6px);box-shadow:0 2px 0 #0C5A48;}
+.shake{animation:shake .3s;}
+@keyframes shake{25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+</style>
+</head>
+<body>
+<div class="frame">
+<div class="inner" id="inner">
+<div class="top"><h1>Whack-a-Rat</h1><div class="stats"><span class="pill time" id="time">⏱ 60</span><span class="pill score" id="score">⭐ 0</span></div></div>
+<div class="bar"><i id="bar"></i></div>
+<div class="combo" id="combo"></div>
+<div class="grid" id="grid"></div>
+<p class="hint">Tap the cheeky rats · golden = +5 · don't touch the grey paint blob!</p>
+<div class="overlay" id="start"><div class="card"><h2>Whack-a-<br>Rat</h2><p>The street-art rats are popping out of the drains — tap them before they hide! 🐀🎨</p>
+<div class="legend"><span><b style="background:#C9B6FF;"></b>+1</span><span><b style="background:#FFD86B;"></b>+5</span><span><b style="background:#7C8C88;"></b>grey blob — don't tap!</span></div>
+<button class="btn" id="playBtn" type="button">Play!</button></div></div>
+<div class="overlay" id="over" hidden><div class="card"><h2>Time's Up!</h2><p class="big" id="final">Score: 0</p><p id="best"></p><button class="btn" id="againBtn" type="button">Play Again</button></div></div>
+</div>
+</div>
+<script>
+(function(){
+var COLS=['#C9B6FF','#8FD3F4','#84E6A4','#FFB8C6'],FX=['#84E6A4','#C9B6FF','#FFD86B','#FFB8C6','#8FD3F4','#E9524A'];
+var grid=document.getElementById('grid'),scoreEl=document.getElementById('score'),timeEl=document.getElementById('time'),bar=document.getElementById('bar'),comboEl=document.getElementById('combo'),inner=document.getElementById('inner');
+var holes=[];var G={running:false,score:0,left:60,combo:0,spawnT:0};
+var face='<div class="face"><div class="brow l"></div><div class="brow r"></div><div class="eye l"></div><div class="eye r"></div><div class="cheek l"></div><div class="cheek r"></div><div class="whisk l"></div><div class="whisk r"></div><div class="nose"></div><div class="mouth"></div></div>';
+for(var i=0;i<9;i++){var h=document.createElement('div');h.className='hole';h.innerHTML='<div class="pit"></div><div class="mask"><div class="dot"><div class="spikes"></div><div class="cap"></div>'+face+'</div></div>';grid.appendChild(h);
+holes.push({el:h,dot:h.querySelector('.dot'),busy:false,type:null,timer:0});
+(function(idx){h.addEventListener('pointerdown',function(e){e.preventDefault();whack(idx,e);});})(i);}
+/* sound */
+var AC=null;function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f1,f2,dur,type,vol,delay){var a=ac();if(!a)return;var t=a.currentTime+(delay||0);var o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol||.2,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+dur+.02);}
+function sPop(){tone(900,300,.12,'sine',.22);tone(1500,700,.05,'square',.04);}
+function sGold(){[784,988,1175,1568].forEach(function(f,i){tone(f,f*1.01,.12,'triangle',.15,i*.06);});}
+function sBad(){tone(180,80,.3,'sawtooth',.12);}
+function sEnd(){[659,784,988,1319].forEach(function(f,i){tone(f,f,.2,'triangle',.16,i*.14);});}
+function show(idx,type,dur){var H=holes[idx];H.busy=true;H.type=type;H.dot.className='dot'+(type==='gold'?' gold':type==='spiky'?' spiky':'');
+if(type==='normal')H.dot.style.setProperty('--c',COLS[Math.random()*COLS.length|0]);
+void H.dot.offsetWidth;H.dot.classList.add('up');H.timer=setTimeout(function(){hide(idx);},dur);}
+function hide(idx){var H=holes[idx];H.dot.classList.remove('up');clearTimeout(H.timer);setTimeout(function(){H.busy=false;H.type=null;},170);}
+function fx(idx,text,colour){var h=holes[idx].el;var f=document.createElement('div');f.className='float';f.textContent=text;f.style.color=colour;h.appendChild(f);setTimeout(function(){f.remove();},700);
+for(var k=0;k<8;k++){var s=document.createElement('i');s.className='splat';var a=k/8*Math.PI*2;s.style.setProperty('--dx',Math.cos(a)*60+'px');s.style.setProperty('--dy',Math.sin(a)*60+'px');s.style.background=FX[k%FX.length];h.appendChild(s);(function(n){setTimeout(function(){n.remove();},500);})(s);}}
+function whack(idx){if(!G.running)return;var H=holes[idx];if(!H.type||!H.dot.classList.contains('up'))return;var t=H.type;H.type=null;clearTimeout(H.timer);
+H.dot.classList.add('hit');setTimeout(function(){H.dot.className='dot';H.busy=false;},230);
+if(t==='spiky'){sBad();G.score=Math.max(0,G.score-1);G.combo=0;comboEl.textContent='Splat! Combo lost 💥';inner.classList.remove('shake');void inner.offsetWidth;inner.classList.add('shake');fx(idx,'-1','#C2453C');}
+else{var pts=t==='gold'?5:1;G.combo++;if(G.combo>0&&G.combo%5===0){pts+=2;comboEl.textContent='🔥 Combo x'+G.combo+'! +2 bonus';}else{comboEl.textContent=G.combo>1?'Combo x'+G.combo:'';}
+G.score+=pts;t==='gold'?sGold():sPop();fx(idx,'+'+pts,t==='gold'?'#FFD86B':'#fff');}
+scoreEl.textContent='⭐ '+G.score;}
+function spawnWave(){var progress=1-G.left/60;var free=holes.map(function(h,i){return h.busy?-1:i;}).filter(function(i){return i>=0;});if(!free.length)return;
+var count=Math.random()<(.2+progress*.45)?2:1;
+for(var c=0;c<count&&free.length;c++){var j=free.splice(Math.random()*free.length|0,1)[0];var r=Math.random();var type=r<.1?'gold':r<.24?'spiky':'normal';
+var dur=(1150-progress*520)*(type==='gold'?.75:1);show(j,type,dur);}}
+var last=0,secT=0;
+function loop(now){if(!G.running)return;var dt=last?(now-last)/1000:0;last=now;
+G.left-=dt;if(G.left<=0){G.left=0;end();}
+var sec=Math.ceil(G.left);if(sec!==secT){secT=sec;timeEl.textContent='⏱ '+sec;timeEl.classList.toggle('low',sec<=10);}
+bar.style.width=(G.left/60*100)+'%';
+G.spawnT-=dt;if(G.spawnT<=0){spawnWave();var progress=1-G.left/60;G.spawnT=(.95-progress*.5)*(.8+Math.random()*.4);}
+if(G.running)requestAnimationFrame(loop);}
+function start(){ac();G.running=true;G.score=0;G.left=60;G.combo=0;G.spawnT=.5;last=0;secT=0;scoreEl.textContent='⭐ 0';comboEl.textContent='';
+holes.forEach(function(h,i){clearTimeout(h.timer);h.dot.className='dot';h.busy=false;h.type=null;});
+document.getElementById('start').hidden=true;document.getElementById('over').hidden=true;requestAnimationFrame(loop);}
+function end(){G.running=false;holes.forEach(function(h,i){hide(i);});sEnd();
+var best=Math.max(G.score,+(localStorage.getItem('whackRatBest')||0));localStorage.setItem('whackRatBest',best);
+document.getElementById('final').textContent='Score: '+G.score;document.getElementById('best').textContent=G.score>=best&&G.score>0?'🏆 New best score!':'Best: '+best;
+setTimeout(function(){document.getElementById('over').hidden=false;},400);}
+document.getElementById('playBtn').addEventListener('click',start);document.getElementById('againBtn').addEventListener('click',start);
+})();
+</script>
+</body>
+</html>
